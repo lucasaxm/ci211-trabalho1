@@ -1,0 +1,56 @@
+Boa Noite Professor,
+Encontrei um pequeno problema com o seu código, e a versão 2.5 do
+bison. Diferente da versão instalada nas servidoras do DINF (2.4.1),
+versões superiores tem algum pequeno problema na chamada da função
+yyerror contida no arquivo *.tab.c . Mais informações sobre esse bug
+podem ser vistas nos fóruns do Bison (link). Por fim uma solução
+temporária sugerida seria declarar a função yyerror, como o exemplo
+abaixo:
+
+posfixo.y
+%{
+#include <stdio.h>
+
+void yyerror (char const *);
+%}
+
+%token IDENT MAIS MENOS OR ASTERISCO DIV ABRE_PARENTESES
+ FECHA_PARENTESES
+
+%%
+
+expr       : expr MAIS termo {printf ("+"); } |
+             expr MENOS termo {printf ("-"); } | 
+             termo
+;
+
+termo      : termo ASTERISCO fator  {printf ("*"); }| 
+             termo DIV fator  {printf ("/"); }|
+             fator
+;
+
+fator      : IDENT {printf ("A"); }
+;
+
+%%
+void yyerror (char const *message)
+{
+    fputs (message, stderr);
+    fputc ('\n', stderr);
+}
+main (int argc, char** argv) {
+   yyparse();
+}
+
+​Com essa inclusão o makefile funciona perfeitamente nas versão
+superiores a 2.4.1​.
+
+​Entendo também que como o trabalho deve ser executado nas servidoras
+do DINF, esse não é um problema muito importante. Entretanto para
+aqueles que querem implementar no conforto de seu PC pode ser de uma
+pequena ajuda.​
+
+Atenciosamente​
+
+
+Yuri Danielewicz
